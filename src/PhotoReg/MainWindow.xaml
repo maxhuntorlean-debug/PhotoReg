@@ -1,0 +1,274 @@
+<Window x:Class="PhotoReg.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PhotoReg"
+        Width="1280"
+        Height="840"
+        MinWidth="880"
+        MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="#F3F5F4"
+        Foreground="#1C2430"
+        FontFamily="Segoe UI"
+        FontSize="13"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewMouseDown="Window_PreviewMouseDown"
+        PreviewMouseWheel="Window_PreviewMouseWheel"
+        Loaded="Window_Loaded">
+    <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Height="76"
+                Background="#F3F5F4">
+            <Grid Margin="18,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="44"
+                            Height="44"
+                            CornerRadius="12"
+                            Background="#0F766E"
+                            Margin="0,0,12,0">
+                        <Viewbox Width="22" Height="22">
+                            <Canvas Width="24" Height="24">
+                                <Rectangle Canvas.Left="3" Canvas.Top="4" Width="18" Height="16"
+                                           RadiusX="2" RadiusY="2"
+                                           Stroke="White" StrokeThickness="1.7"/>
+                                <Ellipse Canvas.Left="7.2" Canvas.Top="7.6" Width="2.8" Height="2.8" Fill="White"/>
+                                <Path Data="M6.2,16.2 L9.8,12.4 L12.4,14.8 L15.2,11.6 L18.2,16.2"
+                                      Stroke="White" StrokeThickness="1.6"
+                                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="PhotoReg" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="Экспресс" Margin="0,1,0,0" Foreground="#66707A" FontSize="13"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="TitleBlock" Grid.Column="1" VerticalAlignment="Center" Margin="24,0">
+                    <TextBlock x:Name="NameText"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               FontWeight="SemiBold"/>
+                    <TextBlock x:Name="MetaText"
+                               Margin="0,2,0,0"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="#66707A"
+                               FontSize="12"/>
+                </StackPanel>
+                <StackPanel x:Name="CropBar"
+                            Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                    <TextBlock x:Name="CropHint"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0"
+                               Foreground="#66707A"
+                               TextTrimming="CharacterEllipsis"/>
+                    <Button Content="Отмена"
+                            Style="{StaticResource GhostButton}"
+                            Margin="0,0,8,0"
+                            Click="CropCancel_Click"
+                            AutomationProperties.Name="Отмена обрезки"/>
+                    <Button x:Name="CropApplyButton"
+                            Content="Готово"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="CropApply_Click"
+                            AutomationProperties.Name="Готово"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ToggleButton x:Name="CropButton"
+                                  Content="Обрезать"
+                                  Style="{StaticResource CropToggle}"
+                                  Margin="0,0,8,0"
+                                  Focusable="False"
+                                  Checked="CropButton_Checked"
+                                  Unchecked="CropButton_Unchecked"
+                                  AutomationProperties.Name="Обрезать"
+                                  ToolTip="Включить обрезку. Повторный щелчок выключает. Рамка сохраняется на следующем фото"/>
+                    <Button Content="По умолчанию"
+                            Style="{StaticResource GhostButton}"
+                            Margin="0,0,8,0"
+                            Click="Default_Click"
+                            ToolTip="Выбрать PhotoReg в окне «Открыть с помощью»"/>
+                    <Button Content="Открыть"
+                            Style="{StaticResource GhostButton}"
+                            Click="Open_Click"
+                            ToolTip="Открыть фотографию (Ctrl+O)"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border x:Name="BottomBar"
+                DockPanel.Dock="Bottom"
+                Height="118"
+                Background="#FFFFFF"
+                BorderBrush="#E6EBE8"
+                BorderThickness="0,1,0,0">
+            <Grid>
+                <ListBox x:Name="Film"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="#1C2430"
+                         Padding="10,0"
+                         FocusVisualStyle="{x:Null}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                         ScrollViewer.CanContentScroll="True"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         ItemContainerStyle="{StaticResource FilmItem}"
+                         SelectionChanged="Film_SelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="108"
+                                  Height="72"
+                                  Loaded="Thumb_Loaded"
+                                  DataContextChanged="Thumb_DataContextChanged">
+                                <Image Source="{Binding Thumbnail}"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="LowQuality"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock x:Name="StripPlaceholder"
+                           Text="Здесь появятся фотографии из папки"
+                           Foreground="#66707A"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"/>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="StageHost"
+              Background="#EEF1EF"
+              ClipToBounds="True"
+              SizeChanged="StageHost_SizeChanged"
+              PreviewMouseLeftButtonDown="StageHost_MouseLeftButtonDown"
+              PreviewMouseLeftButtonUp="StageHost_MouseLeftButtonUp"
+              PreviewMouseMove="StageHost_MouseMove"
+              LostMouseCapture="StageHost_LostMouseCapture">
+            <Canvas x:Name="Stage" Background="Transparent">
+                <Image x:Name="PhotoView"
+                       Stretch="Fill"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Canvas>
+
+            <Button x:Name="PrevButton"
+                    Style="{StaticResource RoundButton}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="18,0"
+                    Click="Prev_Click"
+                    AutomationProperties.Name="Предыдущая"
+                    ToolTip="Предыдущая (←)"
+                    Visibility="Collapsed">
+                <Viewbox Width="16" Height="16">
+                    <Path Data="M10,2 L4,8 L10,14"
+                          Stroke="#1C2430"
+                          StrokeThickness="1.8"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"/>
+                </Viewbox>
+            </Button>
+            <Button x:Name="NextButton"
+                    Style="{StaticResource RoundButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="18,0"
+                    Click="Next_Click"
+                    AutomationProperties.Name="Следующая"
+                    ToolTip="Следующая (→ или пробел)"
+                    Visibility="Collapsed">
+                <Viewbox Width="16" Height="16">
+                    <Path Data="M4,2 L10,8 L4,14"
+                          Stroke="#1C2430"
+                          StrokeThickness="1.8"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"/>
+                </Viewbox>
+            </Button>
+
+            <Button x:Name="ZoomChip"
+                    Style="{StaticResource GhostButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="16"
+                    Padding="10,5"
+                    Click="ZoomChip_Click"
+                    Visibility="Collapsed"
+                    ToolTip="Вернуть «вместить». Двойной щелчок по фото делает то же самое"/>
+
+            <TextBlock x:Name="LoadingText"
+                       Text="Открываю…"
+                       Foreground="#66707A"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Margin="20"
+                       Visibility="Collapsed"
+                       IsHitTestVisible="False"/>
+
+            <TextBlock x:Name="ErrorText"
+                       Text="Не удалось открыть этот файл"
+                       Foreground="#6F2424"
+                       FontSize="16"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="Collapsed"
+                       IsHitTestVisible="False"/>
+
+            <StackPanel x:Name="StageEmpty"
+                        MaxWidth="560"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock x:Name="WelcomeTitle"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           TextAlignment="Center"/>
+                <TextBlock x:Name="WelcomeBody"
+                           Margin="0,12,0,0"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Foreground="#66707A"
+                           FontSize="15"
+                           LineHeight="22"/>
+                <TextBlock x:Name="WelcomeHint"
+                           Margin="0,10,0,0"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Foreground="#8B949E"
+                           FontSize="13"/>
+                <Button Content="Открыть фотографию"
+                        Style="{StaticResource PrimaryButton}"
+                        HorizontalAlignment="Center"
+                        Margin="0,22,0,0"
+                        Padding="18,8"
+                        Click="Open_Click"/>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>
